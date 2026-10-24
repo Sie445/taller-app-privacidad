@@ -5,30 +5,43 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Política de privacidad — Taller App</title>
   <style>
-    body { font-family: system-ui, sans-serif; max-width: 40rem; margin: 2rem auto; padding: 0 1rem; line-height: 1.5; color: #111; }
+    body { font-family: system-ui, sans-serif; max-width: 40rem; margin: 2rem auto; padding: 0 1rem 3rem; line-height: 1.5; color: #111; }
     h1 { font-size: 1.6rem; }
     h2 { font-size: 1.1rem; margin-top: 1.6rem; }
     img { border-radius: 18px; }
+    nav { font-size: 0.95rem; }
+    nav a { color: #0b57d0; }
+    .note { color: #333; font-size: 0.95rem; }
   </style>
 </head>
 <body>
   <p><img src="icono.png" alt="" width="72" height="72" /></p>
+  <nav>
+    <a href="./" aria-current="page">Privacidad</a>
+    · <a href="terminos.html">Términos</a>
+    · <a href="licencias.html">Licencias</a>
+  </nav>
   <h1>Política de privacidad</h1>
   <p>Taller App (“la app”) es una herramienta para gestionar órdenes de trabajo de un taller o negocio similar. Este texto describe qué datos se usan. No es asesoría legal.</p>
   <p>Responsable: el desarrollador que publica la app en Google Play (la ficha de la tienda indica el correo de contacto).</p>
+  <p class="note">Los <a href="terminos.html">términos de uso</a> y las <a href="licencias.html">licencias de código abierto</a> están en este mismo sitio.</p>
 
   <h2>Qué datos guarda la app</h2>
-  <p>Los datos del taller (clientes, teléfonos, trabajos, productos, órdenes, caja, contratos, agenda, logo y el PIN cifrado) se guardan <strong>en el teléfono</strong>. No enviamos esa base a un servidor nuestro.</p>
+  <p>Los datos del taller (clientes, teléfonos, trabajos, productos, órdenes, caja, contratos, agenda, logo y la clave del taller) se guardan <strong>en el teléfono</strong>, cifrados. No enviamos esa base a un servidor nuestro.</p>
   <p>Si el usuario entra con Google, la app guarda en el teléfono el correo, el nombre y la foto de esa cuenta para reconocerla. No vendemos esos datos.</p>
 
   <h2>Contactos</h2>
   <p>Si el usuario importa un cliente, la app abre la agenda del teléfono y lee solo el contacto elegido: nombre, teléfono y correo. No copia el resto de la agenda y no envía ese dato a un servidor.</p>
 
-  <h2>Cámara</h2>
-  <p>La cámara se usa solo si el usuario escanea un código de barras o un QR. La imagen se lee en el teléfono y no se sube.</p>
+  <h2>Cámara, códigos e imágenes</h2>
+  <p>La cámara se usa si el usuario escanea un código de barras o un QR. La imagen se lee en el teléfono y no se sube.</p>
+  <p>Si el usuario elige una foto para el logo, quitar el fondo se hace en el teléfono con un modelo incluido en la app. Esa imagen no se envía a un servidor nuestro ni a un modelo en la nube.</p>
+
+  <h2>Avisos en el teléfono</h2>
+  <p>La app puede mostrar avisos locales de citas y de saldos. Los programa el propio teléfono. No hay un servidor nuestro de notificaciones push.</p>
 
   <h2>Huella o bloqueo del teléfono</h2>
-  <p>Si el usuario activa el desbloqueo del taller con la huella o el PIN del teléfono, Android comprueba la identidad. La app no recibe ni guarda la huella.</p>
+  <p>Si el usuario activa el desbloqueo del taller con la huella o el bloqueo del teléfono, Android comprueba la identidad. La app no recibe ni guarda la huella.</p>
 
   <h2>Google y Drive</h2>
   <p>Si el usuario elige “Continuar con Google”, Google identifica su cuenta. Eso sirve para entrar y, si lo activa, para una copia de seguridad en <strong>su</strong> Google Drive (archivo cifrado). La app solo pide acceso a los archivos que ella crea (<code>drive.file</code>), no a todo el Drive.</p>
@@ -42,20 +55,21 @@
     <li>No vendemos listas de clientes.</li>
     <li>No mostramos publicidad de terceros.</li>
     <li>No exigimos un servidor de licencias para usar el taller.</li>
+    <li>No enviamos el logo, las órdenes ni las fotos a un servicio de inteligencia artificial en internet.</li>
   </ul>
 
   <h2>Pagos</h2>
-  <p>La app base es gratis. Premium es una suscripción mensual que cobra Google Play. No recibimos el número de la tarjeta. La suscripción se cancela desde las suscripciones de Google Play.</p>
+  <p>La app base es gratis. Premium lo cobra Google Play como prepago. El precio, la duración y si el plan se renueva los muestra Google antes de pagar. No recibimos el número de la tarjeta. El plan se administra o se cancela en las suscripciones de Google Play.</p>
 
   <h2>Conservación y borrado</h2>
-  <p>En Ajustes, «Borrar mi taller y datos» borra el taller de ese teléfono. Pide el PIN y la palabra BORRAR para que un toque no lo borre. Si hay copia creada por la app en Drive, intenta mandarla a la papelera. Si Drive no responde, el usuario la borra desde su Drive.</p>
-  <p>Desinstalar la app también quita los datos del teléfono. Un PIN olvidado no se puede recuperar desde nuestro lado. La suscripción de Play se cancela en las suscripciones de Google Play, no dentro del borrado del taller.</p>
+  <p>En Ajustes, «Borrar mi taller y datos» borra el taller de ese teléfono. Pide la clave y la palabra BORRAR para que un toque no lo borre. Si hay copia creada por la app en Drive, intenta mandarla a la papelera. Si Drive no responde, el usuario la borra desde su Drive.</p>
+  <p>Desinstalar la app también quita los datos del teléfono. Una clave olvidada no se puede recuperar desde nuestro lado. La suscripción de Play se cancela en las suscripciones de Google Play, no dentro del borrado del taller.</p>
 
   <h2>Menores</h2>
   <p>La app está pensada para uso profesional. No está dirigida a menores de 13 años.</p>
 
   <h2>Contacto</h2>
   <p>Para ejercer derechos de acceso o borrado sobre datos que hubiera en nuestros canales de soporte, escribe al correo publicado en la ficha de Play.</p>
-  <p>Última actualización: 11 de octubre de 2026.</p>
+  <p>Última actualización: 23 de octubre de 2026.</p>
 </body>
 </html>
