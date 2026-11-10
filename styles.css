@@ -1,0 +1,116 @@
+:root {
+  --blue: #1d4ed8;
+  --teal: #0d9488;
+  --ink: #0f172a;
+  --muted: #475569;
+  --line: #e2e8f0;
+  --bg: #f3f7fb;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: "Segoe UI", system-ui, sans-serif;
+  line-height: 1.55;
+  color: var(--ink);
+  background: linear-gradient(180deg, #f7faff 0%, #eef8f6 220px);
+}
+
+.wrap {
+  max-width: 44rem;
+  margin: 0 auto;
+  padding: 1.25rem 1rem 3rem;
+}
+
+.top {
+  display: flex;
+  gap: 0.9rem;
+  align-items: center;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 22px;
+  padding: 0.95rem 1rem;
+}
+
+.top img {
+  width: 72px;
+  height: 72px;
+  border-radius: 18px;
+  flex: none;
+}
+
+.brand {
+  margin: 0;
+  font-size: 1.45rem;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+}
+
+.brand .a { color: var(--blue); }
+.brand .b { color: var(--teal); }
+
+.tag {
+  margin: 0.15rem 0 0;
+  color: var(--muted);
+  font-size: 0.95rem;
+}
+
+nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  margin: 0.9rem 0;
+}
+
+nav a {
+  text-decoration: none;
+  color: var(--ink);
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 0.45rem 0.85rem;
+  font-size: 0.92rem;
+}
+
+nav a[aria-current="page"] {
+  background: var(--blue);
+  border-color: var(--blue);
+  color: #fff;
+}
+
+main {
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 22px;
+  padding: 1.25rem 1.15rem 1.6rem;
+}
+
+h1 { font-size: 1.55rem; margin: 0 0 0.7rem; }
+h2 { font-size: 1.08rem; margin: 1.55rem 0 0.45rem; }
+h3 { font-size: 1rem; margin: 1.2rem 0 0.4rem; }
+p { margin: 0.55rem 0; }
+a { color: var(--blue); }
+.note { color: var(--muted); }
+ul { padding-left: 1.2rem; }
+li { margin: 0.35rem 0; }
+
+pre {
+  white-space: pre-wrap;
+  font-family: ui-monospace, Consolas, monospace;
+  font-size: 0.78rem;
+  line-height: 1.45;
+  background: #f8fafc;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 1rem;
+  overflow-wrap: anywhere;
+}
+
+code { font-size: 0.92em; }
+
+footer {
+  color: var(--muted);
+  font-size: 0.85rem;
+  margin-top: 0.9rem;
+}

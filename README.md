@@ -1,6 +1,6 @@
-# Taller App — privacidad, términos y licencias
+# FacturaCash — privacidad, términos y licencias
 
-Páginas públicas para la ficha de Google Play.
+Páginas públicas para Google Play.
 
 - Privacidad: https://sie445.github.io/taller-app-privacidad/
 - Términos: https://sie445.github.io/taller-app-privacidad/terminos.html

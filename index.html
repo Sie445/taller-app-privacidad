@@ -3,73 +3,95 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Política de privacidad — Taller App</title>
-  <style>
-    body { font-family: system-ui, sans-serif; max-width: 40rem; margin: 2rem auto; padding: 0 1rem 3rem; line-height: 1.5; color: #111; }
-    h1 { font-size: 1.6rem; }
-    h2 { font-size: 1.1rem; margin-top: 1.6rem; }
-    img { border-radius: 18px; }
-    nav { font-size: 0.95rem; }
-    nav a { color: #0b57d0; }
-    .note { color: #333; font-size: 0.95rem; }
-  </style>
+  <title>Política de privacidad — FacturaCash</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="icon" href="icono.png" />
 </head>
 <body>
-  <p><img src="icono.png" alt="" width="72" height="72" /></p>
+  <div class="wrap">
+  <header class="top">
+    <img src="icono.png" alt="" width="72" height="72" />
+    <div>
+      <p class="brand"><span class="a">Factura</span><span class="b">Cash</span></p>
+      <p class="tag">Órdenes, clientes y PDF en el teléfono</p>
+    </div>
+  </header>
   <nav>
     <a href="./" aria-current="page">Privacidad</a>
-    · <a href="terminos.html">Términos</a>
-    · <a href="licencias.html">Licencias</a>
+    <a href="terminos.html">Términos</a>
+    <a href="licencias.html">Licencias</a>
   </nav>
+  <main>
   <h1>Política de privacidad</h1>
-  <p>Taller App (“la app”) es una herramienta para gestionar órdenes de trabajo de un taller o negocio similar. Este texto describe qué datos se usan. No es asesoría legal.</p>
-  <p>Responsable: el desarrollador que publica la app en Google Play (la ficha de la tienda indica el correo de contacto).</p>
+  <p>FacturaCash es una herramienta para talleres mecánicos, de reparación, servicios técnicos y oficios parecidos. Este texto dice qué datos se usan y cómo se protegen. No es asesoría legal.</p>
+  <p>Responsable del tratamiento: el desarrollador independiente que publica la app en Google Play (correo de soporte oficial: <a href="mailto:tlcc.cloud.sync@gmail.com">tlcc.cloud.sync@gmail.com</a>).</p>
   <p class="note">Los <a href="terminos.html">términos de uso</a> y las <a href="licencias.html">licencias de código abierto</a> están en este mismo sitio.</p>
 
-  <h2>Qué datos guarda la app</h2>
-  <p>Los datos del taller (clientes, teléfonos, trabajos, productos, órdenes, caja, contratos, agenda, logo y la clave del taller) se guardan <strong>en el teléfono</strong>, cifrados. No enviamos esa base a un servidor nuestro.</p>
-  <p>Si el usuario entra con Google, la app guarda en el teléfono el correo, el nombre y la foto de esa cuenta para reconocerla. No vendemos esos datos.</p>
+  <h2>1. Arquitectura Offline-First y Cero Servidores Propios</h2>
+  <p>La base del taller (clientes, teléfonos, cotizaciones, órdenes de trabajo, colaboradores, caja, inventario, contratos, agenda y logotipo) se guarda en el teléfono, cifrada con AES-256 GCM. No hay un servidor nuestro que guarde esa base completa. La app puede usarse sin señal. Las funciones opcionales de inteligencia artificial, descritas en la sección 9, envían solo el dato de esa acción para devolver un resultado.</p>
 
-  <h2>Contactos</h2>
-  <p>Si el usuario importa un cliente, la app abre la agenda del teléfono y lee solo el contacto elegido: nombre, teléfono y correo. No copia el resto de la agenda y no envía ese dato a un servidor.</p>
+  <h2>2. Colaboradores y Gestión de Personal</h2>
+  <p>Los nombres, teléfonos y cargos asignados a colaboradores o técnicos se guardan únicamente dentro de la base de datos cifrada local en el dispositivo con el fin de asignar responsables a las órdenes de trabajo y facilitar la comunicación directa por WhatsApp. Dichos datos no son compartidos con terceros ni procesados con fines ajenos a la operación de tu taller.</p>
 
-  <h2>Cámara, códigos e imágenes</h2>
-  <p>La cámara se usa si el usuario escanea un código de barras o un QR. La imagen se lee en el teléfono y no se sube.</p>
-  <p>Si el usuario elige una foto para el logo, quitar el fondo se hace en el teléfono con un modelo incluido en la app. Esa imagen no se envía a un servidor nuestro ni a un modelo en la nube.</p>
+  <h2>3. Contactos</h2>
+  <p>Si el usuario decide autocompletar la ficha de un cliente desde su agenda telefónica, el sistema solicita acceso a contactos mediante el selector nativo del sistema operativo y lee <strong>únicamente el contacto específico seleccionado por el usuario</strong> (nombre, teléfono y correo electrónico). La aplicación nunca indexa, copia ni transmite el resto de la agenda de contactos a ningún servidor externo.</p>
 
-  <h2>Avisos en el teléfono</h2>
-  <p>La app puede mostrar avisos locales de citas y de saldos. Los programa el propio teléfono. No hay un servidor nuestro de notificaciones push.</p>
-
-  <h2>Huella o bloqueo del teléfono</h2>
-  <p>Si el usuario activa el desbloqueo del taller con la huella o el bloqueo del teléfono, Android comprueba la identidad. La app no recibe ni guarda la huella.</p>
-
-  <h2>Google y Drive</h2>
-  <p>Si el usuario elige “Continuar con Google”, Google identifica su cuenta. Eso sirve para entrar y, si lo activa, para una copia de seguridad en <strong>su</strong> Google Drive (archivo cifrado). La app solo pide acceso a los archivos que ella crea (<code>drive.file</code>), no a todo el Drive.</p>
-  <p>Google trata esos datos según su propia política: <a href="https://policies.google.com/privacy">policies.google.com/privacy</a>.</p>
-
-  <h2>WhatsApp</h2>
-  <p>Si el usuario envía un mensaje al cliente, el teléfono abre WhatsApp con el número y el texto. Eso lo procesa WhatsApp, no nosotros.</p>
-
-  <h2>Qué no hacemos</h2>
+  <h2>4. Cámara, Escáner e Imágenes</h2>
+  <p>El permiso de cámara se usa para:</p>
   <ul>
-    <li>No vendemos listas de clientes.</li>
-    <li>No mostramos publicidad de terceros.</li>
-    <li>No exigimos un servidor de licencias para usar el taller.</li>
-    <li>No enviamos el logo, las órdenes ni las fotos a un servicio de inteligencia artificial en internet.</li>
+    <li>Escanear códigos de barras y códigos QR de productos o inventario.</li>
+    <li>Capturar fotografías de recepción y estado de los vehículos o activos ingresados a una orden de trabajo.</li>
   </ul>
+  <p>Las fotos de una orden se guardan en el teléfono. Quitar el fondo del logotipo también se hace en el teléfono, sin subir esa imagen. Si usas el escáner de documento o de factura, esa imagen o PDF sí se envía para leerlo, como explica la sección 9.</p>
 
-  <h2>Pagos</h2>
-  <p>La app base es gratis. Premium lo cobra Google Play como prepago. El precio, la duración y si el plan se renueva los muestra Google antes de pagar. No recibimos el número de la tarjeta. El plan se administra o se cancela en las suscripciones de Google Play.</p>
+  <h2>5. Avisos y Notificaciones</h2>
+  <p>La aplicación puede programar recordatorios locales de citas pendientes y vencimiento de saldos. Estos avisos son gestionados y disparados localmente por el propio sistema operativo Android. No empleamos servidores externos de mensajería push.</p>
 
-  <h2>Conservación y borrado</h2>
-  <p>En Ajustes, «Borrar mi taller y datos» borra el taller de ese teléfono. Pide la clave y la palabra BORRAR para que un toque no lo borre. Si hay copia creada por la app en Drive, intenta mandarla a la papelera. Si Drive no responde, el usuario la borra desde su Drive.</p>
-  <p>Desinstalar la app también quita los datos del teléfono. Una clave olvidada no se puede recuperar desde nuestro lado. La suscripción de Play se cancela en las suscripciones de Google Play, no dentro del borrado del taller.</p>
+  <h2>6. Biometría y Bloqueo de Pantalla</h2>
+  <p>Si el usuario activa la protección biométrica (huella dactilar o reconocimiento facial) o el bloqueo del dispositivo para acceder al taller, la autenticación es delegada de forma segura a las APIs oficiales de Android. La aplicación jamás recibe, procesa ni almacena tus datos o rasgos biométricos.</p>
 
-  <h2>Menores</h2>
-  <p>La app está pensada para uso profesional. No está dirigida a menores de 13 años.</p>
+  <h2>7. Cuenta Google y Copias de Seguridad en Google Drive</h2>
+  <p>Si el usuario opta por la función de respaldo en la nube con Google, la aplicación solicita autenticación mediante los servicios oficiales de Google Identity. Esta función utiliza estrictamente el permiso de alcance limitado <code>drive.file</code>, el cual autoriza a la app a interactuar únicamente con los archivos que ella misma ha creado (un archivo de respaldo cifrado guardado en <strong>tu propio Google Drive</strong>). La aplicación no tiene acceso al resto de tus fotos, documentos ni correos personales en Google Drive.</p>
+  <p>El tratamiento que Google realiza sobre tu cuenta y tus archivos en Google Drive se rige por su respectiva política de privacidad: <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">policies.google.com/privacy</a>.</p>
 
-  <h2>Contacto</h2>
-  <p>Para ejercer derechos de acceso o borrado sobre datos que hubiera en nuestros canales de soporte, escribe al correo publicado en la ficha de Play.</p>
-  <p>Última actualización: 23 de octubre de 2026.</p>
+  <h2>8. Integración con WhatsApp</h2>
+  <p>Al pulsar los botones de contacto por WhatsApp (para clientes o colaboradores), la app delega la acción al sistema operativo abriendo la aplicación oficial de WhatsApp con el número telefónico y el mensaje de texto preparado. Dicha comunicación es procesada por WhatsApp (Meta) conforme a sus propias políticas de privacidad.</p>
+
+  <h2>9. Funciones con inteligencia artificial</h2>
+  <p>La base del taller sigue en el teléfono. No se copia entera a un servidor. Algunas funciones opcionales, sobre todo con Premium, envían solo lo necesario para responder a esa acción:</p>
+  <ul>
+    <li><strong>Dictado por voz:</strong> el audio o el texto dictado, junto con el país, la moneda y el idioma.</li>
+    <li><strong>Escáner de documento o factura:</strong> la imagen o el PDF de ese documento, y el idioma.</li>
+    <li><strong>Sugerir repuestos e insumos:</strong> el trabajo descrito, el tipo de bien, el país, la moneda y el idioma. No se envía la lista de clientes ni el nombre del taller.</li>
+    <li><strong>Corregir una nota:</strong> el texto de esa nota y el oficio.</li>
+    <li><strong>Redactar un mensaje de WhatsApp:</strong> los datos de esa orden que hacen falta para el texto. Pueden incluir el nombre del cliente, el nombre del taller y los montos. El mensaje sale solo si tú lo envías desde WhatsApp.</li>
+    <li><strong>Precios de referencia:</strong> puede guardarse el nombre del repuesto o servicio, el precio, el país, la moneda y el oficio. No se guarda el nombre del taller ni el del cliente.</li>
+  </ul>
+  <p>Esas consultas van a una función del desarrollador para devolver un resultado. Si no hay conexión, la app sigue con lo que puede hacer en el teléfono.</p>
+  <p>No vendemos, no alquilamos ni comercializamos clientes, órdenes ni historiales. La app no muestra publicidad de terceros.</p>
+
+  <h2>10. Pagos, Facturación y Suscripciones (Google Play)</h2>
+  <p>La aplicación base puede utilizarse sin costo con límites operativos de cortesía. Para acceder a funciones avanzadas (como reportes ilimitados, caja completa, contratos formales y exportación avanzada), se ofrecen modalidades Premium a través del sistema oficial de pagos de Google Play Billing:</p>
+  <ul>
+    <li><strong>Plan 1 Mes (002premium):</strong> Compra prepagada por 1 mes, sin renovación automática.</li>
+    <li><strong>Plan 4 Meses (003premium):</strong> Suscripción recurrente con renovación automática cada 4 meses.</li>
+    <li><strong>Plan Anual (004premium):</strong> Suscripción recurrente con renovación automática cada 12 meses.</li>
+  </ul>
+  <p>Google Play procesa el cobro y la emisión de comprobantes financieros según las políticas de tu cuenta de Google. Nosotros no recopilamos ni tenemos acceso a los números de tarjetas de crédito o información bancaria del usuario.</p>
+  <p><strong>Cancelación y administración:</strong> El usuario puede revisar, modificar o cancelar la renovación automática de su suscripción en cualquier momento accediendo a la sección de suscripciones de Google Play Store (o en <a href="https://play.google.com/store/account/subscriptions" target="_blank" rel="noopener">play.google.com/store/account/subscriptions</a>). Al cancelar una suscripción recurrente, no se realizarán cargos posteriores y las ventajas Premium permanecerán habilitadas hasta que expire el ciclo ya pagado.</p>
+
+  <h2>11. Conservación de Datos, Rescate y Derecho al Olvido (ARCO)</h2>
+  <p>En cualquier momento, el usuario puede exportar la totalidad de su taller en formato estándar JSON desde el menú de Ajustes. Asimismo, dispone de la opción <strong>«Borrar mi taller y datos»</strong>, la cual solicita confirmación de seguridad y elimina de forma definitiva e inmediata la base de datos cifrada y las llaves locales del dispositivo.</p>
+  <p>Si el usuario configuró copias en Google Drive, el sistema enviará la orden de mover el archivo de respaldo a la papelera de Drive. Desinstalar la aplicación del dispositivo elimina todos los datos locales. Debido a la arquitectura de cifrado de extremo a extremo, una clave local olvidada sin respaldo ni archivo de rescate no puede ser recuperada por el desarrollador. La cancelación de la suscripción de Google Play debe realizarse directamente en Google Play Store, ya que desinstalar la app o borrar el taller no cancela la suscripción en los sistemas de Google.</p>
+
+  <h2>12. Menores de Edad</h2>
+  <p>La aplicación está destinada a adultos que administran un taller o un oficio. No está dirigida a menores de 18 años ni busca datos de ellos.</p>
+
+  <h2>13. Canales de Contacto y Soporte</h2>
+  <p>Para formular consultas sobre privacidad, asistencia técnica o soporte sobre la bóveda de datos, puedes escribir directamente al correo oficial de soporte: <a href="mailto:tlcc.cloud.sync@gmail.com">tlcc.cloud.sync@gmail.com</a>.</p>
+  <p>Última actualización: 10 de noviembre de 2026.</p>
+  </main>
+  <footer>FacturaCash · <a href="mailto:tlcc.cloud.sync@gmail.com">tlcc.cloud.sync@gmail.com</a></footer>
+  </div>
 </body>
 </html>
