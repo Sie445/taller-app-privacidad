@@ -20,9 +20,13 @@
     body { background: var(--bg); color: var(--text); min-height: 100vh; padding: 16px; }
     .wrap { max-width: 480px; margin: 0 auto; display: flex; flex-direction: column; gap: 14px; padding-bottom: 44px; }
     .card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 16px; }
-    .brand-bar { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
-    .brand-bar img { width: 34px; height: 34px; border-radius: 9px; border: 1px solid var(--border); }
-    .brand-bar span { font-size: 13px; font-weight: 800; color: var(--muted); }
+    .brand-bar { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 10px; }
+    .brand-left { display: flex; align-items: center; gap: 10px; min-width: 0; }
+    .brand-left img { width: 34px; height: 34px; border-radius: 9px; border: 1px solid var(--border); flex-shrink: 0; }
+    .brand-left span { font-size: 13px; font-weight: 800; color: var(--muted); }
+    .lang-switch { display: inline-flex; align-items: center; gap: 3px; background: #020617; border: 1px solid var(--border); border-radius: 999px; padding: 3px; flex-shrink: 0; }
+    .lang-btn { border: none; background: transparent; color: var(--muted); font-size: 11px; font-weight: 800; padding: 5px 9px; border-radius: 999px; cursor: pointer; min-height: 28px; transition: background 0.15s, color 0.15s; }
+    .lang-btn.active { background: var(--accent); color: #020617; }
     .badge { display: inline-block; padding: 4px 10px; border-radius: 999px; font-size: 11px; font-weight: 800; background: var(--accent); color: #020617; }
     h1 { font-size: 19px; font-weight: 900; margin-top: 8px; line-height: 1.25; }
     .sub { font-size: 13px; color: var(--muted); margin-top: 5px; line-height: 1.45; }
@@ -51,8 +55,8 @@
 <body>
   <div class="wrap" id="app">
     <div class="card">
-      <div class="brand-bar"><img src="icono.png" alt="FacturaCash" /><span>FacturaCash</span></div>
-      <p class="sub" id="loadingText">Cargando cotización / Loading quote...</p>
+      <div class="brand-bar" id="bootBrandBar"></div>
+      <p class="sub" id="loadingText">Cargando cotización...</p>
     </div>
   </div>
 
@@ -65,6 +69,7 @@
       const I18N = {
         es: {
           pageTitle: "Confirmación de Cotización · FacturaCash",
+          loading: "Cargando cotización...",
           quoteFor: "Cotización para",
           itemsTitle: "Detalle de trabajos e insumos (marca los que autorizas):",
           totalAuthorized: "Total autorizado:",
@@ -89,6 +94,7 @@
         },
         en: {
           pageTitle: "Quote Authorization · FacturaCash",
+          loading: "Loading quote...",
           quoteFor: "Quote for",
           itemsTitle: "Work & parts breakdown (check the items you authorize):",
           totalAuthorized: "Authorized total:",
@@ -113,6 +119,7 @@
         },
         pt: {
           pageTitle: "Confirmação de Orçamento · FacturaCash",
+          loading: "Carregando orçamento...",
           quoteFor: "Orçamento para",
           itemsTitle: "Detalhamento de serviços e peças (marque os que autoriza):",
           totalAuthorized: "Total autorizado:",
@@ -138,10 +145,38 @@
       };
 
       function detectFallbackLang() {
+        const qp = (params.get("lang") || "").toLowerCase();
+        if (qp === "es" || qp === "en" || qp === "pt") return qp;
         const nav = (navigator.language || "es").toLowerCase();
         if (nav.startsWith("pt")) return "pt";
         if (nav.startsWith("en")) return "en";
         return "es";
+      }
+
+      let currentLang = detectFallbackLang();
+      let isSubmitting = false;
+      const langHandlers = [];
+      const langSwitches = [];
+
+      function registerLangHandler(fn) {
+        langHandlers.push(fn);
+        fn(I18N[currentLang], currentLang);
+      }
+
+      function applyLanguage(nextLang) {
+        if (!I18N[nextLang]) return;
+        currentLang = nextLang;
+        document.documentElement.lang = nextLang;
+        document.title = I18N[nextLang].pageTitle;
+        for (const sw of langSwitches) {
+          sw.querySelectorAll("button").forEach((b) => {
+            b.classList.toggle("active", b.dataset.lang === nextLang);
+          });
+        }
+        const L = I18N[nextLang];
+        for (const fn of langHandlers) {
+          fn(L, nextLang);
+        }
       }
 
       function el(tag, className, text) {
@@ -153,21 +188,44 @@
 
       function brandHeader() {
         const bar = el("div", "brand-bar");
+        const left = el("div", "brand-left");
         const img = el("img");
         img.src = "icono.png";
         img.alt = "FacturaCash";
-        bar.appendChild(img);
-        bar.appendChild(el("span", "", "FacturaCash"));
+        left.appendChild(img);
+        left.appendChild(el("span", "", "FacturaCash"));
+        bar.appendChild(left);
+
+        const sw = el("div", "lang-switch");
+        sw.setAttribute("role", "group");
+        sw.setAttribute("aria-label", "Language");
+        ["es", "en", "pt"].forEach((code) => {
+          const btn = el("button", "lang-btn" + (code === currentLang ? " active" : ""), code.toUpperCase());
+          btn.type = "button";
+          btn.dataset.lang = code;
+          btn.addEventListener("click", () => applyLanguage(code));
+          sw.appendChild(btn);
+        });
+        langSwitches.push(sw);
+        bar.appendChild(sw);
         return bar;
       }
 
-      function renderErrorCard(msg) {
+      function resetViewHandlers() {
+        langHandlers.length = 0;
+        langSwitches.length = 0;
+      }
+
+      function renderErrorCard(key) {
+        resetViewHandlers();
         const app = document.getElementById("app");
         app.innerHTML = "";
         const card = el("div", "card");
         card.appendChild(brandHeader());
         card.appendChild(el("h1", "", "FacturaCash"));
-        card.appendChild(el("p", "sub", msg));
+        const msgEl = el("p", "sub");
+        card.appendChild(msgEl);
+        registerLangHandler((L) => { msgEl.textContent = L[key] || ""; });
         app.appendChild(card);
       }
 
@@ -192,10 +250,17 @@
         return Math.max(0, qty * price);
       }
 
+      // Initialize loading screen header switcher
+      const bootBar = document.getElementById("bootBrandBar");
+      if (bootBar) {
+        bootBar.replaceWith(brandHeader());
+        const lt = document.getElementById("loadingText");
+        if (lt) registerLangHandler((L) => { lt.textContent = L.loading; });
+      }
+
       async function boot() {
-        const fallbackLang = detectFallbackLang();
         if (!TOKEN) {
-          renderErrorCard(I18N[fallbackLang].expired);
+          renderErrorCard("expired");
           return;
         }
 
@@ -203,21 +268,27 @@
           const res = await fetch(API_BASE + "?t=" + encodeURIComponent(TOKEN) + "&format=json");
           const data = await res.json();
           if (!data || !data.ok) {
-            renderErrorCard(I18N[fallbackLang].expired);
+            renderErrorCard("expired");
             return;
           }
 
           const ws = data.workshop_snapshot || {};
           const qs = data.quote_snapshot || {};
-          const lang = (ws.lang === "en" || ws.lang === "pt" || ws.lang === "es") ? ws.lang : fallbackLang;
-          const L = I18N[lang];
-          document.documentElement.lang = lang;
-          document.title = L.pageTitle;
+          const qpLang = (params.get("lang") || "").toLowerCase();
+          if (qpLang !== "es" && qpLang !== "en" && qpLang !== "pt") {
+            if (ws.lang === "en" || ws.lang === "pt" || ws.lang === "es") {
+              currentLang = ws.lang;
+            }
+          }
 
           const currency = ws.currency || "$";
           const items = Array.isArray(qs.items) ? qs.items : [];
-          const fmt = (n) => currency + " " + Math.round(Number(n || 0)).toLocaleString(lang === "en" ? "en-US" : lang === "pt" ? "pt-BR" : "es-CL");
+          const fmt = (n, lng) => {
+            const loc = lng === "en" ? "en-US" : lng === "pt" ? "pt-BR" : "es-CL";
+            return currency + " " + Math.round(Number(n || 0)).toLocaleString(loc);
+          };
 
+          resetViewHandlers();
           const app = document.getElementById("app");
           app.innerHTML = "";
 
@@ -227,10 +298,17 @@
             card.appendChild(brandHeader());
             card.appendChild(el("span", "badge", data.folio_code || "-"));
             card.appendChild(el("h1", "", ws.workshopName || "FacturaCash"));
-            const statusText = (L.statusMap && L.statusMap[data.status]) || data.status;
-            card.appendChild(el("p", "sub", L.alreadyDone + " " + statusText));
-            card.appendChild(el("p", "seal", L.sealLabel + " " + (rd.approvalHash || "-")));
+            const statusP = el("p", "sub");
+            const sealP = el("p", "seal");
+            card.appendChild(statusP);
+            card.appendChild(sealP);
+            registerLangHandler((L) => {
+              const statusText = (L.statusMap && L.statusMap[data.status]) || data.status;
+              statusP.textContent = L.alreadyDone + " " + statusText;
+              sealP.textContent = L.sealLabel + " " + (rd.approvalHash || "-");
+            });
             app.appendChild(card);
+            applyLanguage(currentLang);
             return;
           }
 
@@ -240,7 +318,10 @@
           headerCard.appendChild(el("span", "badge", data.folio_code || "-"));
           headerCard.appendChild(el("h1", "", ws.workshopName || "Taller"));
           const detailLine = [qs.clientName || "-", qs.assetDetail || qs.job || ""].filter(Boolean).join(" · ");
-          headerCard.appendChild(el("p", "sub", L.quoteFor + ": " + detailLine));
+          const quoteForP = el("p", "sub");
+          headerCard.appendChild(quoteForP);
+          registerLangHandler((L) => { quoteForP.textContent = L.quoteFor + ": " + detailLine; });
+
           if (qs.note) {
             headerCard.appendChild(el("div", "note-box", qs.note));
           }
@@ -248,9 +329,10 @@
             ? qs.evidencePhotos.filter((u) => typeof u === "string" && /^https?:\/\//i.test(u))
             : [];
           if (evPhotos.length > 0) {
-            const pTitle = el("label", "field-label", L.photosTitle);
+            const pTitle = el("label", "field-label");
             pTitle.style.marginTop = "12px";
             headerCard.appendChild(pTitle);
+            registerLangHandler((L) => { pTitle.textContent = L.photosTitle; });
             const grid = el("div", "photos");
             for (const url of evPhotos.slice(0, 6)) {
               const link = el("a");
@@ -269,17 +351,21 @@
 
           // Card 2: Interactive Item selection & Total
           const itemsCard = el("div", "card");
-          itemsCard.appendChild(el("label", "field-label", L.itemsTitle));
+          const itemsTitleEl = el("label", "field-label");
+          itemsCard.appendChild(itemsTitleEl);
           const itemsListEl = el("div");
           const totalBox = el("div", "total-box");
-          totalBox.appendChild(el("span", "", L.totalAuthorized));
+          const totalTitleEl = el("span");
           const totalValEl = el("span");
+          totalBox.appendChild(totalTitleEl);
           totalBox.appendChild(totalValEl);
           itemsCard.appendChild(itemsListEl);
           itemsCard.appendChild(totalBox);
           app.appendChild(itemsCard);
 
           const selectedIds = new Set(items.map((it) => String(it.id)));
+          const itemAmtEls = [];
+
           function calcTotal() {
             let sum = 0;
             for (const it of items) {
@@ -290,7 +376,7 @@
             if (ws.applyTax && Number(ws.taxRate) > 0) {
               sum = sum * (1 + Number(ws.taxRate) / 100);
             }
-            totalValEl.textContent = fmt(sum);
+            totalValEl.textContent = fmt(sum, currentLang);
             return Math.round(sum);
           }
 
@@ -305,45 +391,60 @@
               calcTotal();
             });
             const info = el("div", "item-info", (it.qty || 1) + "x " + (it.description || ""));
-            const amt = el("div", "item-price", fmt(computeItemAmount(it)));
+            const amtVal = computeItemAmount(it);
+            const amtEl = el("div", "item-price", fmt(amtVal, currentLang));
+            itemAmtEls.push({ el: amtEl, val: amtVal });
             row.appendChild(cb);
             row.appendChild(info);
-            row.appendChild(amt);
+            row.appendChild(amtEl);
             itemsListEl.appendChild(row);
           }
-          calcTotal();
+
+          registerLangHandler((L, lng) => {
+            itemsTitleEl.textContent = L.itemsTitle;
+            totalTitleEl.textContent = L.totalAuthorized;
+            for (const entry of itemAmtEls) {
+              entry.el.textContent = fmt(entry.val, lng);
+            }
+            calcTotal();
+          });
 
           // Card 3: Signer details, Signature canvas & Submit buttons
           const signCard = el("div", "card");
-          signCard.appendChild(el("label", "field-label", L.signerName));
+          const lblName = el("label", "field-label");
+          signCard.appendChild(lblName);
           const signerNameInput = document.createElement("input");
           signerNameInput.type = "text";
           signerNameInput.value = qs.clientName || "";
           signCard.appendChild(signerNameInput);
 
-          signCard.appendChild(el("label", "field-label", L.signerTaxId));
+          const lblTax = el("label", "field-label");
+          signCard.appendChild(lblTax);
           const signerTaxInput = document.createElement("input");
           signerTaxInput.type = "text";
           signCard.appendChild(signerTaxInput);
 
-          signCard.appendChild(el("label", "field-label", L.comment));
+          const lblComment = el("label", "field-label");
+          signCard.appendChild(lblComment);
           const commentInput = document.createElement("textarea");
           commentInput.rows = 2;
           signCard.appendChild(commentInput);
 
-          signCard.appendChild(el("label", "field-label", L.signTitle));
+          const lblSign = el("label", "field-label");
+          signCard.appendChild(lblSign);
           const canvas = document.createElement("canvas");
           canvas.width = 420;
           canvas.height = 160;
           signCard.appendChild(canvas);
 
-          const clearBtn = el("button", "btn btn-clear", L.clearSign);
+          const clearBtn = el("button", "btn btn-clear");
           clearBtn.type = "button";
           const errEl = el("p", "err-msg", "");
           errEl.style.display = "none";
-          const approveBtn = el("button", "btn btn-approve", L.approveBtn);
+          let lastErrorKey = "";
+          const approveBtn = el("button", "btn btn-approve");
           approveBtn.type = "button";
-          const rejectBtn = el("button", "btn btn-reject", L.rejectBtn);
+          const rejectBtn = el("button", "btn btn-reject");
           rejectBtn.type = "button";
 
           signCard.appendChild(clearBtn);
@@ -351,6 +452,19 @@
           signCard.appendChild(approveBtn);
           signCard.appendChild(rejectBtn);
           app.appendChild(signCard);
+
+          registerLangHandler((L) => {
+            lblName.textContent = L.signerName;
+            lblTax.textContent = L.signerTaxId;
+            lblComment.textContent = L.comment;
+            lblSign.textContent = L.signTitle;
+            clearBtn.textContent = L.clearSign;
+            approveBtn.textContent = isSubmitting ? L.sending : L.approveBtn;
+            rejectBtn.textContent = L.rejectBtn;
+            if (lastErrorKey && errEl.style.display !== "none") {
+              errEl.textContent = L[lastErrorKey] || "";
+            }
+          });
 
           const ctx = canvas.getContext("2d");
           ctx.strokeStyle = "#0f172a";
@@ -373,6 +487,7 @@
             drawing = true;
             hasDrawn = true;
             errEl.style.display = "none";
+            lastErrorKey = "";
             const p = getCanvasPoint(e);
             ctx.beginPath();
             ctx.moveTo(p.x, p.y);
@@ -391,20 +506,23 @@
           });
 
           async function submitDecision(decision) {
+            const L = I18N[currentLang];
             const signerName = signerNameInput.value.trim();
             const signerTaxId = signerTaxInput.value.trim();
             const clientComment = commentInput.value.trim();
 
             if (decision === "APPROVED" && (!signerName || !hasDrawn)) {
+              lastErrorKey = "needSign";
               errEl.textContent = L.needSign;
               errEl.style.display = "block";
               return;
             }
 
+            isSubmitting = true;
             approveBtn.disabled = true;
             rejectBtn.disabled = true;
             errEl.style.display = "none";
-            const prevApproveText = approveBtn.textContent;
+            lastErrorKey = "";
             approveBtn.textContent = L.sending;
 
             try {
@@ -437,34 +555,48 @@
 
               const wsPhone = String(ws.workshopPhone || "").replace(/[^\d]/g, "");
               const waText = encodeURIComponent(
-                "✅ " + (data.folio_code || "") + " (" + out.status + ") · " + signerName + " · " + fmt(approvedTotal) + " · #" + hash.slice(0, 8).toUpperCase()
+                "✅ " + (data.folio_code || "") + " (" + out.status + ") · " + signerName + " · " + fmt(approvedTotal, currentLang) + " · #" + hash.slice(0, 8).toUpperCase()
               );
 
+              resetViewHandlers();
               app.innerHTML = "";
               const doneCard = el("div", "card");
               doneCard.appendChild(brandHeader());
               doneCard.appendChild(el("span", "badge", data.folio_code || "-"));
-              doneCard.appendChild(el("h1", "", decision === "REJECTED" ? L.successRejected : L.successApproved));
-              doneCard.appendChild(el("p", "seal", L.sealLabel + " #" + hash.slice(0, 12).toUpperCase()));
+              const doneTitle = el("h1");
+              const sealOut = el("p", "seal");
+              doneCard.appendChild(doneTitle);
+              doneCard.appendChild(sealOut);
+              let waBtn = null;
               if (wsPhone) {
-                const waBtn = el("a", "btn btn-approve", L.sendWaBack);
+                waBtn = el("a", "btn btn-approve");
                 waBtn.href = "https://wa.me/" + wsPhone + "?text=" + waText;
                 doneCard.appendChild(waBtn);
               }
+              registerLangHandler((Lnow) => {
+                doneTitle.textContent = decision === "REJECTED" ? Lnow.successRejected : Lnow.successApproved;
+                sealOut.textContent = Lnow.sealLabel + " #" + hash.slice(0, 12).toUpperCase();
+                if (waBtn) waBtn.textContent = Lnow.sendWaBack;
+              });
               app.appendChild(doneCard);
+              applyLanguage(currentLang);
             } catch (_err) {
+              isSubmitting = false;
               approveBtn.disabled = false;
               rejectBtn.disabled = false;
-              approveBtn.textContent = prevApproveText;
-              errEl.textContent = L.submitError;
+              approveBtn.textContent = I18N[currentLang].approveBtn;
+              lastErrorKey = "submitError";
+              errEl.textContent = I18N[currentLang].submitError;
               errEl.style.display = "block";
             }
           }
 
           approveBtn.addEventListener("click", () => { void submitDecision("APPROVED"); });
           rejectBtn.addEventListener("click", () => { void submitDecision("REJECTED"); });
+          applyLanguage(currentLang);
         } catch (_err) {
-          renderErrorCard(I18N[fallbackLang].submitError);
+          renderErrorCard("submitError");
+          applyLanguage(currentLang);
         }
       }
 
