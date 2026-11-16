@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Confirmación de Cotización · FacturaCash</title>
+  <link rel="icon" href="icono.png" />
+  <style>
+    :root {
+      --bg: #0f172a;
+      --card: #1e293b;
+      --border: #334155;
+      --text: #f8fafc;
+      --muted: #94a3b8;
+      --accent: #f59e0b;
+      --green: #10b981;
+      --red: #ef4444;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, "Segoe UI", sans-serif; }
+    body { background: var(--bg); color: var(--text); min-height: 100vh; padding: 16px; }
+    .wrap { max-width: 480px; margin: 0 auto; display: flex; flex-direction: column; gap: 14px; padding-bottom: 44px; }
+    .card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 16px; }
+    .brand-bar { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+    .brand-bar img { width: 34px; height: 34px; border-radius: 9px; border: 1px solid var(--border); }
+    .brand-bar span { font-size: 13px; font-weight: 800; color: var(--muted); }
+    .badge { display: inline-block; padding: 4px 10px; border-radius: 999px; font-size: 11px; font-weight: 800; background: var(--accent); color: #020617; }
+    h1 { font-size: 19px; font-weight: 900; margin-top: 8px; line-height: 1.25; }
+    .sub { font-size: 13px; color: var(--muted); margin-top: 5px; line-height: 1.45; }
+    .note-box { margin-top: 10px; padding: 10px 12px; border-radius: 10px; background: rgba(15, 23, 42, 0.65); border: 1px solid var(--border); font-size: 13px; color: #e2e8f0; line-height: 1.45; white-space: pre-wrap; }
+    .item-row { display: flex; align-items: flex-start; gap: 10px; padding: 11px 0; border-bottom: 1px solid var(--border); cursor: pointer; }
+    .item-row:last-child { border-bottom: none; }
+    .item-row input[type="checkbox"] { width: 22px; height: 22px; margin-top: 1px; accent-color: var(--green); flex-shrink: 0; }
+    .item-info { flex: 1; font-size: 13px; line-height: 1.4; }
+    .item-price { font-weight: 800; font-size: 13px; white-space: nowrap; }
+    .total-box { display: flex; justify-content: space-between; align-items: center; padding-top: 12px; border-top: 1px solid var(--border); font-size: 16px; font-weight: 900; margin-top: 4px; }
+    label.field-label { display: block; font-size: 12px; font-weight: 700; color: var(--muted); margin-bottom: 6px; }
+    input[type="text"], textarea { width: 100%; min-height: 46px; border-radius: 12px; border: 1px solid var(--border); background: #020617; color: var(--text); padding: 10px 12px; font-size: 14px; margin-bottom: 12px; }
+    canvas { width: 100%; height: 160px; display: block; background: #ffffff; border-radius: 12px; touch-action: none; border: 2px solid var(--border); }
+    .btn { width: 100%; min-height: 48px; border-radius: 14px; border: none; font-size: 14px; font-weight: 800; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 10px; text-decoration: none; }
+    .btn:disabled { opacity: 0.55; cursor: not-allowed; }
+    .btn-approve { background: var(--green); color: #022c22; }
+    .btn-reject { background: rgba(239,68,68,0.15); color: #fca5a5; border: 1px solid rgba(239,68,68,0.4); }
+    .btn-clear { background: transparent; color: var(--muted); border: 1px solid var(--border); min-height: 38px; font-size: 12px; margin-top: 8px; }
+    .photos { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 10px; }
+    .photos a { display: block; }
+    .photos img { width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 10px; border: 1px solid var(--border); display: block; }
+    .seal { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 11px; color: var(--accent); word-break: break-all; margin-top: 10px; }
+    .err-msg { color: #fca5a5; font-size: 12px; font-weight: 700; margin-top: 8px; }
+  </style>
+</head>
+<body>
+  <div class="wrap" id="app">
+    <div class="card">
+      <div class="brand-bar"><img src="icono.png" alt="FacturaCash" /><span>FacturaCash</span></div>
+      <p class="sub" id="loadingText">Cargando cotización / Loading quote...</p>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      const API_BASE = "https://ettylolkcccfnrjnpqro.supabase.co/functions/v1/quote-portal";
+      const params = new URLSearchParams(window.location.search);
+      const TOKEN = (params.get("t") || "").trim().replace(/[^a-zA-Z0-9_-]/g, "");
+
+      const I18N = {
+        es: {
+          pageTitle: "Confirmación de Cotización · FacturaCash",
+          quoteFor: "Cotización para",
+          itemsTitle: "Detalle de trabajos e insumos (marca los que autorizas):",
+          totalAuthorized: "Total autorizado:",
+          photosTitle: "Evidencia adjunta:",
+          signerName: "Tu Nombre y Apellido *",
+          signerTaxId: "Documento / RUT / DNI (opcional)",
+          comment: "Observación o indicación para el taller (opcional)",
+          signTitle: "Firma con tu dedo en el recuadro blanco *",
+          clearSign: "Limpiar firma",
+          approveBtn: "✍️ Aprobar y Firmar Autorización",
+          rejectBtn: "✕ Rechazar Presupuesto",
+          sending: "Enviando autorización...",
+          alreadyDone: "Esta cotización ya fue respondida:",
+          expired: "Este enlace de cotización no existe o expiró.",
+          needSign: "Por favor escribe tu nombre y dibuja tu firma en el recuadro.",
+          submitError: "No se pudo guardar tu respuesta. Revisa tu conexión e inténtalo nuevamente.",
+          successApproved: "✅ ¡Autorización firmada y enviada al taller!",
+          successRejected: "Respuesta enviada al taller.",
+          sendWaBack: "📲 Enviar comprobante al WhatsApp del taller",
+          sealLabel: "Sello Digital SHA-256:",
+          statusMap: { APPROVED: "Aprobada", PARTIAL: "Aprobada parcialmente", REJECTED: "Rechazada" }
+        },
+        en: {
+          pageTitle: "Quote Authorization · FacturaCash",
+          quoteFor: "Quote for",
+          itemsTitle: "Work & parts breakdown (check the items you authorize):",
+          totalAuthorized: "Authorized total:",
+          photosTitle: "Attached evidence:",
+          signerName: "Your Full Name *",
+          signerTaxId: "ID / Tax Number (optional)",
+          comment: "Comment or note for the workshop (optional)",
+          signTitle: "Sign with your finger inside the white box *",
+          clearSign: "Clear signature",
+          approveBtn: "✍️ Approve & Sign Authorization",
+          rejectBtn: "✕ Reject Quote",
+          sending: "Sending authorization...",
+          alreadyDone: "This quote has already been answered:",
+          expired: "This quote link does not exist or has expired.",
+          needSign: "Please enter your name and draw your signature.",
+          submitError: "Could not save your response. Check your connection and try again.",
+          successApproved: "✅ Authorization signed and sent to the workshop!",
+          successRejected: "Response sent to the workshop.",
+          sendWaBack: "📲 Send receipt to Workshop WhatsApp",
+          sealLabel: "SHA-256 Digital Seal:",
+          statusMap: { APPROVED: "Approved", PARTIAL: "Partially Approved", REJECTED: "Rejected" }
+        },
+        pt: {
+          pageTitle: "Confirmação de Orçamento · FacturaCash",
+          quoteFor: "Orçamento para",
+          itemsTitle: "Detalhamento de serviços e peças (marque os que autoriza):",
+          totalAuthorized: "Total autorizado:",
+          photosTitle: "Evidências anexadas:",
+          signerName: "Seu Nome Completo *",
+          signerTaxId: "CPF / CNPJ / Documento (opcional)",
+          comment: "Observação para a oficina (opcional)",
+          signTitle: "Assine com o dedo no quadro branco *",
+          clearSign: "Limpar assinatura",
+          approveBtn: "✍️ Aprovar e Assinar Autorização",
+          rejectBtn: "✕ Recusar Orçamento",
+          sending: "Enviando autorização...",
+          alreadyDone: "Este orçamento já foi respondido:",
+          expired: "Este link de orçamento não existe ou expirou.",
+          needSign: "Por favor, digite seu nome e desenhe sua assinatura.",
+          submitError: "Não foi possível salvar sua resposta. Verifique sua conexão e tente novamente.",
+          successApproved: "✅ Autorização assinada e enviada para a oficina!",
+          successRejected: "Resposta enviada para a oficina.",
+          sendWaBack: "📲 Enviar comprovante para o WhatsApp da oficina",
+          sealLabel: "Selo Digital SHA-256:",
+          statusMap: { APPROVED: "Aprovado", PARTIAL: "Aprovado parcialmente", REJECTED: "Recusado" }
+        }
+      };
+
+      function detectFallbackLang() {
+        const nav = (navigator.language || "es").toLowerCase();
+        if (nav.startsWith("pt")) return "pt";
+        if (nav.startsWith("en")) return "en";
+        return "es";
+      }
+
+      function el(tag, className, text) {
+        const node = document.createElement(tag);
+        if (className) node.className = className;
+        if (text !== undefined && text !== null) node.textContent = String(text);
+        return node;
+      }
+
+      function brandHeader() {
+        const bar = el("div", "brand-bar");
+        const img = el("img");
+        img.src = "icono.png";
+        img.alt = "FacturaCash";
+        bar.appendChild(img);
+        bar.appendChild(el("span", "", "FacturaCash"));
+        return bar;
+      }
+
+      function renderErrorCard(msg) {
+        const app = document.getElementById("app");
+        app.innerHTML = "";
+        const card = el("div", "card");
+        card.appendChild(brandHeader());
+        card.appendChild(el("h1", "", "FacturaCash"));
+        card.appendChild(el("p", "sub", msg));
+        app.appendChild(card);
+      }
+
+      async function sha256Hex(text) {
+        if (window.crypto && window.crypto.subtle) {
+          const buf = await window.crypto.subtle.digest("SHA-256", new TextEncoder().encode(text));
+          return Array.from(new Uint8Array(buf)).map((b) => b.toString(16).padStart(2, "0")).join("");
+        }
+        let h = 0x811c9dc5;
+        for (let i = 0; i < text.length; i++) {
+          h = Math.imul(h ^ text.charCodeAt(i), 0x01000193) >>> 0;
+        }
+        return h.toString(16).padStart(8, "0").repeat(8);
+      }
+
+      function computeItemAmount(it) {
+        if (typeof it.lineTotal === "number" && Number.isFinite(it.lineTotal)) {
+          return Math.max(0, it.lineTotal);
+        }
+        const qty = Number(it.qty) || 1;
+        const price = Number(it.price) || 0;
+        return Math.max(0, qty * price);
+      }
+
+      async function boot() {
+        const fallbackLang = detectFallbackLang();
+        if (!TOKEN) {
+          renderErrorCard(I18N[fallbackLang].expired);
+          return;
+        }
+
+        try {
+          const res = await fetch(API_BASE + "?t=" + encodeURIComponent(TOKEN) + "&format=json");
+          const data = await res.json();
+          if (!data || !data.ok) {
+            renderErrorCard(I18N[fallbackLang].expired);
+            return;
+          }
+
+          const ws = data.workshop_snapshot || {};
+          const qs = data.quote_snapshot || {};
+          const lang = (ws.lang === "en" || ws.lang === "pt" || ws.lang === "es") ? ws.lang : fallbackLang;
+          const L = I18N[lang];
+          document.documentElement.lang = lang;
+          document.title = L.pageTitle;
+
+          const currency = ws.currency || "$";
+          const items = Array.isArray(qs.items) ? qs.items : [];
+          const fmt = (n) => currency + " " + Math.round(Number(n || 0)).toLocaleString(lang === "en" ? "en-US" : lang === "pt" ? "pt-BR" : "es-CL");
+
+          const app = document.getElementById("app");
+          app.innerHTML = "";
+
+          if (data.status === "APPROVED" || data.status === "PARTIAL" || data.status === "REJECTED") {
+            const rd = data.response_data || {};
+            const card = el("div", "card");
+            card.appendChild(brandHeader());
+            card.appendChild(el("span", "badge", data.folio_code || "-"));
+            card.appendChild(el("h1", "", ws.workshopName || "FacturaCash"));
+            const statusText = (L.statusMap && L.statusMap[data.status]) || data.status;
+            card.appendChild(el("p", "sub", L.alreadyDone + " " + statusText));
+            card.appendChild(el("p", "seal", L.sealLabel + " " + (rd.approvalHash || "-")));
+            app.appendChild(card);
+            return;
+          }
+
+          // Card 1: Workshop & Quote summary + Evidence photos
+          const headerCard = el("div", "card");
+          headerCard.appendChild(brandHeader());
+          headerCard.appendChild(el("span", "badge", data.folio_code || "-"));
+          headerCard.appendChild(el("h1", "", ws.workshopName || "Taller"));
+          const detailLine = [qs.clientName || "-", qs.assetDetail || qs.job || ""].filter(Boolean).join(" · ");
+          headerCard.appendChild(el("p", "sub", L.quoteFor + ": " + detailLine));
+          if (qs.note) {
+            headerCard.appendChild(el("div", "note-box", qs.note));
+          }
+          const evPhotos = Array.isArray(qs.evidencePhotos)
+            ? qs.evidencePhotos.filter((u) => typeof u === "string" && /^https?:\/\//i.test(u))
+            : [];
+          if (evPhotos.length > 0) {
+            const pTitle = el("label", "field-label", L.photosTitle);
+            pTitle.style.marginTop = "12px";
+            headerCard.appendChild(pTitle);
+            const grid = el("div", "photos");
+            for (const url of evPhotos.slice(0, 6)) {
+              const link = el("a");
+              link.href = url;
+              link.target = "_blank";
+              link.rel = "noopener noreferrer";
+              const img = el("img");
+              img.src = url;
+              img.alt = "Evidence";
+              link.appendChild(img);
+              grid.appendChild(link);
+            }
+            headerCard.appendChild(grid);
+          }
+          app.appendChild(headerCard);
+
+          // Card 2: Interactive Item selection & Total
+          const itemsCard = el("div", "card");
+          itemsCard.appendChild(el("label", "field-label", L.itemsTitle));
+          const itemsListEl = el("div");
+          const totalBox = el("div", "total-box");
+          totalBox.appendChild(el("span", "", L.totalAuthorized));
+          const totalValEl = el("span");
+          totalBox.appendChild(totalValEl);
+          itemsCard.appendChild(itemsListEl);
+          itemsCard.appendChild(totalBox);
+          app.appendChild(itemsCard);
+
+          const selectedIds = new Set(items.map((it) => String(it.id)));
+          function calcTotal() {
+            let sum = 0;
+            for (const it of items) {
+              if (selectedIds.has(String(it.id))) {
+                sum += computeItemAmount(it);
+              }
+            }
+            if (ws.applyTax && Number(ws.taxRate) > 0) {
+              sum = sum * (1 + Number(ws.taxRate) / 100);
+            }
+            totalValEl.textContent = fmt(sum);
+            return Math.round(sum);
+          }
+
+          for (const it of items) {
+            const row = el("label", "item-row");
+            const cb = document.createElement("input");
+            cb.type = "checkbox";
+            cb.checked = true;
+            cb.addEventListener("change", () => {
+              if (cb.checked) selectedIds.add(String(it.id));
+              else selectedIds.delete(String(it.id));
+              calcTotal();
+            });
+            const info = el("div", "item-info", (it.qty || 1) + "x " + (it.description || ""));
+            const amt = el("div", "item-price", fmt(computeItemAmount(it)));
+            row.appendChild(cb);
+            row.appendChild(info);
+            row.appendChild(amt);
+            itemsListEl.appendChild(row);
+          }
+          calcTotal();
+
+          // Card 3: Signer details, Signature canvas & Submit buttons
+          const signCard = el("div", "card");
+          signCard.appendChild(el("label", "field-label", L.signerName));
+          const signerNameInput = document.createElement("input");
+          signerNameInput.type = "text";
+          signerNameInput.value = qs.clientName || "";
+          signCard.appendChild(signerNameInput);
+
+          signCard.appendChild(el("label", "field-label", L.signerTaxId));
+          const signerTaxInput = document.createElement("input");
+          signerTaxInput.type = "text";
+          signCard.appendChild(signerTaxInput);
+
+          signCard.appendChild(el("label", "field-label", L.comment));
+          const commentInput = document.createElement("textarea");
+          commentInput.rows = 2;
+          signCard.appendChild(commentInput);
+
+          signCard.appendChild(el("label", "field-label", L.signTitle));
+          const canvas = document.createElement("canvas");
+          canvas.width = 420;
+          canvas.height = 160;
+          signCard.appendChild(canvas);
+
+          const clearBtn = el("button", "btn btn-clear", L.clearSign);
+          clearBtn.type = "button";
+          const errEl = el("p", "err-msg", "");
+          errEl.style.display = "none";
+          const approveBtn = el("button", "btn btn-approve", L.approveBtn);
+          approveBtn.type = "button";
+          const rejectBtn = el("button", "btn btn-reject", L.rejectBtn);
+          rejectBtn.type = "button";
+
+          signCard.appendChild(clearBtn);
+          signCard.appendChild(errEl);
+          signCard.appendChild(approveBtn);
+          signCard.appendChild(rejectBtn);
+          app.appendChild(signCard);
+
+          const ctx = canvas.getContext("2d");
+          ctx.strokeStyle = "#0f172a";
+          ctx.lineWidth = 2.6;
+          ctx.lineCap = "round";
+          ctx.lineJoin = "round";
+          let hasDrawn = false;
+          let drawing = false;
+
+          function getCanvasPoint(e) {
+            const r = canvas.getBoundingClientRect();
+            const pt = e.touches && e.touches[0] ? e.touches[0] : e;
+            return {
+              x: (pt.clientX - r.left) * (canvas.width / r.width),
+              y: (pt.clientY - r.top) * (canvas.height / r.height)
+            };
+          }
+
+          canvas.addEventListener("pointerdown", (e) => {
+            drawing = true;
+            hasDrawn = true;
+            errEl.style.display = "none";
+            const p = getCanvasPoint(e);
+            ctx.beginPath();
+            ctx.moveTo(p.x, p.y);
+          });
+          canvas.addEventListener("pointermove", (e) => {
+            if (!drawing) return;
+            const p = getCanvasPoint(e);
+            ctx.lineTo(p.x, p.y);
+            ctx.stroke();
+          });
+          window.addEventListener("pointerup", () => { drawing = false; });
+
+          clearBtn.addEventListener("click", () => {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            hasDrawn = false;
+          });
+
+          async function submitDecision(decision) {
+            const signerName = signerNameInput.value.trim();
+            const signerTaxId = signerTaxInput.value.trim();
+            const clientComment = commentInput.value.trim();
+
+            if (decision === "APPROVED" && (!signerName || !hasDrawn)) {
+              errEl.textContent = L.needSign;
+              errEl.style.display = "block";
+              return;
+            }
+
+            approveBtn.disabled = true;
+            rejectBtn.disabled = true;
+            errEl.style.display = "none";
+            const prevApproveText = approveBtn.textContent;
+            approveBtn.textContent = L.sending;
+
+            try {
+              const approvedIds = Array.from(selectedIds);
+              const approvedTotal = calcTotal();
+              const sigData = hasDrawn ? canvas.toDataURL("image/png") : "";
+              const hash = await sha256Hex(
+                TOKEN + ":" + decision + ":" + approvedIds.join(",") + ":" + approvedTotal + ":" + signerName
+              );
+
+              const postRes = await fetch(API_BASE, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  token: TOKEN,
+                  decision,
+                  approvedItemIds: approvedIds,
+                  signerName,
+                  signerTaxId,
+                  clientComment,
+                  signatureData: sigData,
+                  approvalHash: hash,
+                  approvedTotal
+                })
+              });
+              const out = await postRes.json();
+              if (!out || !out.ok) {
+                throw new Error((out && out.reason) || "SUBMIT_FAILED");
+              }
+
+              const wsPhone = String(ws.workshopPhone || "").replace(/[^\d]/g, "");
+              const waText = encodeURIComponent(
+                "✅ " + (data.folio_code || "") + " (" + out.status + ") · " + signerName + " · " + fmt(approvedTotal) + " · #" + hash.slice(0, 8).toUpperCase()
+              );
+
+              app.innerHTML = "";
+              const doneCard = el("div", "card");
+              doneCard.appendChild(brandHeader());
+              doneCard.appendChild(el("span", "badge", data.folio_code || "-"));
+              doneCard.appendChild(el("h1", "", decision === "REJECTED" ? L.successRejected : L.successApproved));
+              doneCard.appendChild(el("p", "seal", L.sealLabel + " #" + hash.slice(0, 12).toUpperCase()));
+              if (wsPhone) {
+                const waBtn = el("a", "btn btn-approve", L.sendWaBack);
+                waBtn.href = "https://wa.me/" + wsPhone + "?text=" + waText;
+                doneCard.appendChild(waBtn);
+              }
+              app.appendChild(doneCard);
+            } catch (_err) {
+              approveBtn.disabled = false;
+              rejectBtn.disabled = false;
+              approveBtn.textContent = prevApproveText;
+              errEl.textContent = L.submitError;
+              errEl.style.display = "block";
+            }
+          }
+
+          approveBtn.addEventListener("click", () => { void submitDecision("APPROVED"); });
+          rejectBtn.addEventListener("click", () => { void submitDecision("REJECTED"); });
+        } catch (_err) {
+          renderErrorCard(I18N[fallbackLang].submitError);
+        }
+      }
+
+      void boot();
+    })();
+  </script>
+</body>
+</html>
